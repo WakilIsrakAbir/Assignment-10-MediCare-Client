@@ -64,19 +64,7 @@ cd Assignment-10-MediCare-Client
 npm install
 ```
 
-### 3. Configure Environment Variables
-Create a `.env.local` file in the root directory:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-### 4. Run Development Server
+### 3. Run Development Server
 ```bash
 npm run dev
 ```
