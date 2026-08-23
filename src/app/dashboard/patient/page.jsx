@@ -563,16 +563,16 @@ export default function PatientDashboardPage() {
 
       {/* Reschedule Modal */}
       {rescheduleModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full space-y-4 border border-slate-200 shadow-2xl">
             <h3 className="text-lg font-bold text-slate-900">Reschedule Consultation</h3>
             <form onSubmit={handleRescheduleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New Visiting Day</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase mb-1.5">New Visiting Day</label>
                 <select
                   value={rescheduleModal.day}
                   onChange={(e) => setRescheduleModal({ ...rescheduleModal, day: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                 >
                   <option value="Monday">Monday</option>
                   <option value="Tuesday">Tuesday</option>
@@ -583,25 +583,25 @@ export default function PatientDashboardPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New Time Slot</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase mb-1.5">New Time Slot</label>
                 <input
                   type="text"
                   value={rescheduleModal.time}
                   onChange={(e) => setRescheduleModal({ ...rescheduleModal, time: e.target.value })}
                   placeholder="e.g. 03:00 PM - 05:00 PM"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setRescheduleModal({ open: false, apptId: '', day: '', time: '' })}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-teal-600">
-                  Confirm
+                <button type="submit" className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-teal-600 hover:bg-teal-700">
+                  Confirm Reschedule
                 </button>
               </div>
             </form>

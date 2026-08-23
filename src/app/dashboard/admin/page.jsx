@@ -274,13 +274,13 @@ export default function AdminDashboardPage() {
                 <p className="text-xs text-slate-500">View, suspend, activate or remove registered accounts</p>
               </div>
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  placeholder="Search users..."
+                  placeholder="Search users by name or email..."
                   value={userSearchTerm}
                   onChange={(e) => setUserSearchTerm(e.target.value)}
-                  className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs"
+                  className="pl-9 pr-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none w-64"
                 />
               </div>
             </div>

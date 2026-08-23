@@ -437,16 +437,16 @@ export default function DoctorDashboardPage() {
                   <select
                     value={newDayInput}
                     onChange={(e) => setNewDayInput(e.target.value)}
-                    className="px-3 py-2 border border-slate-200 rounded-xl text-xs flex-1"
+                    className="px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none flex-1"
                   >
                     {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((d) => (
-                      <option key={d} value={d}>{d}</option>
+                      <option key={d} value={d} className="text-slate-900 font-medium">{d}</option>
                     ))}
                   </select>
                   <button
                     type="button"
                     onClick={handleAddDay}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold"
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors"
                   >
                     Add Day
                   </button>
@@ -455,12 +455,12 @@ export default function DoctorDashboardPage() {
 
               {/* Slots */}
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-2">Available Time Slots</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-2">Available Time Slots</label>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {(doctorSchedule.availableSlots || []).map((slot, idx) => (
                     <span
                       key={idx}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 text-xs font-bold"
                     >
                       {slot}
                       <button type="button" onClick={() => handleRemoveSlot(idx)} className="hover:text-red-600">
@@ -475,12 +475,12 @@ export default function DoctorDashboardPage() {
                     placeholder="e.g. 09:00 AM - 11:00 AM"
                     value={newSlotInput}
                     onChange={(e) => setNewSlotInput(e.target.value)}
-                    className="px-3 py-2 border border-slate-200 rounded-xl text-xs flex-1"
+                    className="px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none flex-1"
                   />
                   <button
                     type="button"
                     onClick={handleAddSlot}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold"
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors"
                   >
                     Add Slot
                   </button>
@@ -505,53 +505,55 @@ export default function DoctorDashboardPage() {
               <p className="text-xs text-slate-500">Update professional credentials, consultation fee, and hospital affiliation</p>
             </div>
 
-            <form onSubmit={handleSaveSchedule} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form onSubmit={handleSaveSchedule} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Specialization</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Specialization</label>
                 <select
                   value={doctorSchedule.specialization || 'General Medicine'}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, specialization: e.target.value })}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 >
                   {['Cardiology', 'Neurology', 'Orthopedics', 'Pediatrics', 'Dermatology', 'General Medicine', 'Oncology', 'Gynecology'].map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s} className="text-slate-900 font-medium">{s}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Qualifications</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Qualifications</label>
                 <input
                   type="text"
                   placeholder="e.g. MBBS, MD (Cardiology)"
                   value={doctorSchedule.qualifications || ''}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, qualifications: e.target.value })}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Experience (Years)</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Experience (Years)</label>
                 <input
                   type="number"
+                  placeholder="e.g. 5"
                   value={doctorSchedule.experience || 0}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, experience: Number(e.target.value) })}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Consultation Fee ($ USD)</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Consultation Fee ($ USD)</label>
                 <input
                   type="number"
+                  placeholder="e.g. 100"
                   value={doctorSchedule.consultationFee || 0}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, consultationFee: Number(e.target.value) })}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Profile Photo / Avatar Image URL</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Profile Photo / Avatar Image URL</label>
                 <div className="flex gap-3 items-center">
                   <img
                     src={doctorSchedule.profileImage || user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80'}
@@ -563,29 +565,30 @@ export default function DoctorDashboardPage() {
                     placeholder="https://example.com/your-doctor-photo.jpg"
                     value={doctorSchedule.profileImage || ''}
                     onChange={(e) => setDoctorSchedule({ ...doctorSchedule, profileImage: e.target.value })}
-                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                   />
                 </div>
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Hospital Affiliation</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">Hospital Affiliation</label>
                 <input
                   type="text"
                   placeholder="e.g. Apollo Heart Center"
                   value={doctorSchedule.hospitalName || ''}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, hospitalName: e.target.value })}
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">About Doctor</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 tracking-wide mb-1.5">About Doctor</label>
                 <textarea
                   rows={3}
+                  placeholder="Write a brief professional summary about your medical practice and patient care..."
                   value={doctorSchedule.about || ''}
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, about: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 ></textarea>
               </div>
 
@@ -603,39 +606,39 @@ export default function DoctorDashboardPage() {
 
       </div>
 
-      {/* Issue Prescription Modal */}
+      {/* Prescription Creation Modal */}
       {prescriptionModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-5 border border-slate-200 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Issue Digital Prescription</h3>
-                <p className="text-xs text-slate-500">Patient: {prescriptionModal.patientName}</p>
+                <h3 className="text-lg font-bold text-slate-900">Create Clinical Prescription</h3>
+                <p className="text-xs text-slate-500">Issuing prescription for {prescriptionModal.patientName}</p>
               </div>
               <button
                 onClick={() => setPrescriptionModal({ ...prescriptionModal, open: false })}
-                className="p-1 rounded-full hover:bg-slate-100"
+                className="p-2 rounded-full hover:bg-slate-100"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 
             <form onSubmit={handlePrescriptionSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Clinical Diagnosis</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 mb-1">Primary Diagnosis</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. Acute Bronchitis / Stage 1 Hypertension"
                   value={prescriptionModal.diagnosis}
                   onChange={(e) => setPrescriptionModal({ ...prescriptionModal, diagnosis: e.target.value })}
-                  placeholder="e.g. Acute Bronchitis, Stage 1 Hypertension"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                 />
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold uppercase text-slate-700">Medications List</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-bold uppercase text-slate-800">Medications List</label>
                   <button
                     type="button"
                     onClick={() =>
@@ -658,14 +661,14 @@ export default function DoctorDashboardPage() {
                     <div key={idx} className="grid grid-cols-4 gap-2">
                       <input
                         type="text"
-                        placeholder="Medicine Name"
+                        placeholder="Medicine"
                         value={med.name}
                         onChange={(e) => {
                           const updated = [...prescriptionModal.medications];
                           updated[idx].name = e.target.value;
                           setPrescriptionModal({ ...prescriptionModal, medications: updated });
                         }}
-                        className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                       />
                       <input
                         type="text"
@@ -676,18 +679,18 @@ export default function DoctorDashboardPage() {
                           updated[idx].dosage = e.target.value;
                           setPrescriptionModal({ ...prescriptionModal, medications: updated });
                         }}
-                        className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                       />
                       <input
                         type="text"
-                        placeholder="Frequency"
+                        placeholder="Freq"
                         value={med.frequency}
                         onChange={(e) => {
                           const updated = [...prescriptionModal.medications];
                           updated[idx].frequency = e.target.value;
                           setPrescriptionModal({ ...prescriptionModal, medications: updated });
                         }}
-                        className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                       />
                       <input
                         type="text"
@@ -698,7 +701,7 @@ export default function DoctorDashboardPage() {
                           updated[idx].duration = e.target.value;
                           setPrescriptionModal({ ...prescriptionModal, medications: updated });
                         }}
-                        className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs"
+                        className="px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                       />
                     </div>
                   ))}
@@ -706,13 +709,13 @@ export default function DoctorDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Clinical Advice</label>
+                <label className="block text-xs font-bold uppercase text-slate-800 mb-1">Clinical Advice & Notes</label>
                 <textarea
                   rows={2}
                   value={prescriptionModal.advice}
                   onChange={(e) => setPrescriptionModal({ ...prescriptionModal, advice: e.target.value })}
-                  placeholder="e.g. Avoid salty food, monitor BP daily"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"
+                  placeholder="e.g. Drink plenty of water, avoid cold beverages, follow up in 7 days."
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
                 ></textarea>
               </div>
 
@@ -720,11 +723,11 @@ export default function DoctorDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setPrescriptionModal({ ...prescriptionModal, open: false })}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="px-6 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600">
+                <button type="submit" className="px-6 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700">
                   Save & Issue Prescription
                 </button>
               </div>

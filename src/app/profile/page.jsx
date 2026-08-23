@@ -50,56 +50,57 @@ export default function ProfilePage() {
             {/* Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">Full Name</label>
                 <input
                   type="text"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 bg-slate-50/60 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">Email Address</label>
                 <input
                   type="email"
                   disabled
                   value={profile.email}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 text-sm cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-100 text-slate-700 text-sm font-semibold cursor-not-allowed"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Profile Photo URL</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">Profile Photo URL</label>
                 <input
                   type="url"
                   placeholder="https://example.com/avatar.jpg"
                   value={profile.Photo}
                   onChange={(e) => setProfile({ ...profile, Photo: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">Phone Number</label>
                 <input
                   type="text"
+                  placeholder="e.g. +1 (555) 234-5678"
                   value={profile.phone}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/60 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Gender</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">Gender</label>
                 <select
                   value={profile.gender}
                   onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500 bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold text-slate-900 focus:outline-none focus:border-teal-600 bg-white"
                 >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="Male" className="text-slate-900 font-medium">Male</option>
+                  <option value="Female" className="text-slate-900 font-medium">Female</option>
+                  <option value="Other" className="text-slate-900 font-medium">Other</option>
                 </select>
               </div>
             </div>
