@@ -3,8 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../services/api';
 import { authClient, signIn as betterSignIn, signUp as betterSignUp, signOut as betterSignOut } from '../lib/auth-client';
-import { auth, googleProvider } from '../lib/firebase';
-import { signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
@@ -86,30 +84,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google OAuth Login
+  // Google OAuth Login via Better Auth / Google Cloud
   const loginWithGoogle = async () => {
     try {
       setLoading(true);
-      const result = await signInWithPopup(auth, googleProvider);
-      const firebaseUser = result.user;
-
-      const res = await API.post('/auth/google', {
-        name: firebaseUser.displayName,
-        email: firebaseUser.email,
-        Photo: firebaseUser.photoURL,
-      });
-
-      if (res.data.success) {
-        setUser(res.data.user);
-        setToken(res.data.token);
-        localStorage.setItem('medicare_token', res.data.token);
-        localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
-        toast.success('Signed in with Google successfully!');
+      if (authClient && authClient.signIn && authClient.signIn.social) {
+        await authClient.signIn.social({
+          provider: 'google',
+          callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard',
+        });
         return { success: true };
+      } else {
+        toast.error('Google OAuth client configuration in progress.');
+        return { success: false };
       }
     } catch (error) {
-      console.error('Google Sign In Error:', error);
-      const msg = error.response?.data?.message || error.message || 'Google sign-in failed.';
+      console.error('Google OAuth Sign In Error:', error);
+      const msg = error.message || 'Google sign-in could not be initiated.';
       toast.error(msg);
       return { success: false, message: msg };
     } finally {
@@ -125,11 +116,6 @@ export const AuthProvider = ({ children }) => {
         await betterSignOut();
       } catch (e) {
         // ignore if better auth session was not set
-      }
-      try {
-        await firebaseSignOut(auth);
-      } catch (e) {
-        // ignore firebase signout
       }
       setUser(null);
       setToken(null);
