@@ -18,23 +18,35 @@ export const AuthProvider = ({ children }) => {
       const storedToken = localStorage.getItem('medicare_token');
       const storedUser = localStorage.getItem('medicare_user');
 
-      if (storedToken && storedUser) {
+      if (storedToken) {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (e) {
+            // ignore JSON parse error
+          }
+        }
+
+        try {
+          // Validate with backend /auth/me
+          const res = await API.get('/auth/me');
+          if (res.data.success && res.data.user) {
+            setUser(res.data.user);
+            localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
+          }
+        } catch (error) {
+          if (error.response?.status === 401) {
+            // Token expired or invalid
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('medicare_token');
+            localStorage.removeItem('medicare_user');
+          }
+        }
       }
 
-      try {
-        // Validate with backend /auth/me or Better Auth session
-        const res = await API.get('/auth/me');
-        if (res.data.success && res.data.user) {
-          setUser(res.data.user);
-          localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
-        }
-      } catch (error) {
-        console.warn('Session sync note:', error.message);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     };
 
     initAuth();
