@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import API from '../../../services/api';
+import { useAuth } from '../../../context/AuthContext';
+import StripeBookingModal from '../../../components/booking/StripeBookingModal';
 import { 
   Star, 
   Building2, 
@@ -13,7 +16,9 @@ import {
   DollarSign, 
   ArrowLeft,
   CheckCircle2,
-  CalendarCheck
+  CalendarCheck,
+  CreditCard,
+  MessageSquare
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -24,6 +29,10 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
   const [loading, setLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState('');
   const [selectedDay, setSelectedDay] = useState('');
+  const [symptoms, setSymptoms] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -40,24 +49,6 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
         }
       } catch (error) {
         console.error('Error fetching doctor:', error);
-        // Fallback demo data
-        setDoctor({
-          _id: id,
-          doctorName: 'Dr. Sarah Jenkins',
-          specialization: 'Cardiology',
-          qualifications: 'MBBS, MD (Cardiology), FACC',
-          experience: 12,
-          consultationFee: 120,
-          hospitalName: 'Apollo Heart Center',
-          profileImage: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80',
-          availableDays: ['Monday', 'Wednesday', 'Friday'],
-          availableSlots: ['09:00 AM - 11:00 AM', '03:00 PM - 05:00 PM'],
-          rating: 4.9,
-          totalReviews: 128,
-          about: 'Senior Consultant Cardiologist specializing in interventional cardiology, cardiovascular diagnostics, and preventative heart wellness.',
-        });
-        setSelectedDay('Monday');
-        setSelectedSlot('09:00 AM - 11:00 AM');
       } finally {
         setLoading(false);
       }
@@ -66,8 +57,21 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
     fetchDoctor();
   }, [id]);
 
-  const handleBooking = () => {
-    toast.success(`Slot selected for ${selectedDay} at ${selectedSlot}. Proceeding to checkout.`);
+  const handleBookingClick = () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in as a patient to book an appointment.');
+      router.push('/login');
+      return;
+    }
+    if (!selectedDay || !selectedSlot) {
+      toast.error('Please choose visiting day and time slot.');
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSuccess = (appointment) => {
+    router.push('/dashboard');
   };
 
   if (loading) {
@@ -133,7 +137,7 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
             </div>
 
             <p className="text-sm text-slate-600 leading-relaxed pt-2">
-              {doctor.about}
+              {doctor.about || 'Dedicated specialist providing compassionate diagnostics and patient-centered healthcare.'}
             </p>
 
             {/* Quick Metrics */}
@@ -159,9 +163,9 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
         {/* Schedule & Booking Section */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm space-y-6">
           <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-2xl font-bold text-slate-900">Schedule an Appointment</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Schedule Consultation & Pay with Stripe</h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Select an available day and time slot to confirm your consultation.
+              Select an available day and time slot to confirm your doctor appointment.
             </p>
           </div>
 
@@ -211,23 +215,48 @@ export default function DoctorDetailsPage({ params: paramsPromise }) {
             </div>
           </div>
 
+          {/* Symptoms Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              3. Describe Your Health Symptoms / Reason for Visit
+            </label>
+            <textarea
+              rows={3}
+              placeholder="e.g. Mild chest tightness, shortness of breath after climbing stairs for 3 days..."
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              className="w-full p-3.5 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+            ></textarea>
+          </div>
+
           {/* Confirm Action */}
           <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left">
-              <span className="text-xs text-slate-500">Total Consultation Amount</span>
-              <p className="text-2xl font-extrabold text-teal-800">${doctor.consultationFee}</p>
+              <span className="text-xs text-slate-500">Total Consultation Fee</span>
+              <p className="text-2xl font-extrabold text-teal-800">${doctor.consultationFee}.00 USD</p>
             </div>
 
             <button
-              onClick={handleBooking}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-lg shadow-teal-600/30 transition-all"
+              onClick={handleBookingClick}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-lg shadow-teal-600/30 hover:shadow-xl transition-all"
             >
-              <CalendarCheck className="w-5 h-5" />
-              Book Appointment Now
+              <CreditCard className="w-5 h-5" />
+              Proceed to Stripe Checkout
             </button>
           </div>
         </div>
       </div>
+
+      {/* Stripe Modal */}
+      <StripeBookingModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        doctor={doctor}
+        selectedDay={selectedDay}
+        selectedSlot={selectedSlot}
+        symptoms={symptoms}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 }
