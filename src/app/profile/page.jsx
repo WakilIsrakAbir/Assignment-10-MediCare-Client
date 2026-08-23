@@ -69,6 +69,17 @@ export default function ProfilePage() {
                 />
               </div>
 
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Profile Photo URL</label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/avatar.jpg"
+                  value={profile.Photo}
+                  onChange={(e) => setProfile({ ...profile, Photo: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number</label>
                 <input

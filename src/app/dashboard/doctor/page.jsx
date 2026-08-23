@@ -281,8 +281,15 @@ export default function DoctorDashboardPage() {
                 </div>
                 <p className="text-xs text-slate-500 font-semibold">Rating Status</p>
                 <h3 className="text-2xl font-black text-slate-900">
-                  {doctorSchedule?.rating ? `${doctorSchedule.rating} / 5.0` : '5.0 / 5.0'}
+                  {doctorSchedule?.rating && doctorSchedule.rating > 0
+                    ? `${Number(doctorSchedule.rating).toFixed(1)} / 5.0`
+                    : '0.0 / 5.0'}
                 </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  {doctorSchedule?.totalReviews && doctorSchedule.totalReviews > 0
+                    ? `Based on ${doctorSchedule.totalReviews} patient reviews`
+                    : 'No patient reviews yet'}
+                </p>
               </div>
             </div>
 
@@ -541,6 +548,24 @@ export default function DoctorDashboardPage() {
                   onChange={(e) => setDoctorSchedule({ ...doctorSchedule, consultationFee: Number(e.target.value) })}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
                 />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">Profile Photo / Avatar Image URL</label>
+                <div className="flex gap-3 items-center">
+                  <img
+                    src={doctorSchedule.profileImage || user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80'}
+                    alt="Preview"
+                    className="w-12 h-12 rounded-xl object-cover border-2 border-teal-500 shadow-xs shrink-0"
+                  />
+                  <input
+                    type="url"
+                    placeholder="https://example.com/your-doctor-photo.jpg"
+                    value={doctorSchedule.profileImage || ''}
+                    onChange={(e) => setDoctorSchedule({ ...doctorSchedule, profileImage: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-xs"
+                  />
+                </div>
               </div>
 
               <div className="sm:col-span-2">
