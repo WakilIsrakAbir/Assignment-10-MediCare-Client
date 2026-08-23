@@ -3,14 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import API from '../../services/api';
 import { motion } from 'framer-motion';
-import { Users, UserCheck, CalendarCheck, Star, Award, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, CalendarCheck, Star, TrendingUp, Sparkles } from 'lucide-react';
 
 export default function PlatformStatistics() {
   const [stats, setStats] = useState({
-    totalDoctors: 120,
-    totalPatients: 8500,
-    totalAppointments: 14200,
-    totalReviews: 3400,
+    totalDoctors: 0,
+    totalPatients: 0,
+    totalAppointments: 0,
+    totalReviews: 0,
   });
 
   useEffect(() => {
@@ -32,88 +32,145 @@ export default function PlatformStatistics() {
     {
       label: 'Verified Doctors',
       value: stats.totalDoctors,
-      suffix: '+',
+      suffix: '',
       description: 'Board certified medical specialists across all departments',
       icon: UserCheck,
-      color: 'from-teal-500 to-emerald-600',
+      color: 'from-teal-400 to-emerald-500',
     },
     {
-      label: 'Happy Patients',
+      label: 'Registered Patients',
       value: stats.totalPatients,
-      suffix: '+',
+      suffix: '',
       description: 'Patients received consultations and treatments',
       icon: Users,
-      color: 'from-cyan-500 to-blue-600',
+      color: 'from-cyan-400 to-blue-500',
     },
     {
       label: 'Appointments Booked',
       value: stats.totalAppointments,
-      suffix: '+',
-      description: 'Online appointments scheduled without queues',
+      suffix: '',
+      description: 'Online appointments scheduled without physical queues',
       icon: CalendarCheck,
-      color: 'from-indigo-500 to-purple-600',
+      color: 'from-indigo-400 to-purple-500',
     },
     {
-      label: 'Positive Reviews',
+      label: 'Patient Reviews',
       value: stats.totalReviews,
-      suffix: '+',
-      description: 'Verified 5-star clinical feedback from genuine patients',
+      suffix: '',
+      description: 'Verified clinical feedback from genuine patients',
       icon: Star,
-      color: 'from-amber-500 to-orange-600',
+      color: 'from-amber-400 to-orange-500',
     },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+    },
+  };
+
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 right-1/3 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <section className="py-24 bg-gradient-to-br from-slate-950 via-teal-950 to-slate-900 text-white relative overflow-hidden">
+      {/* Animated Background Mesh Glows */}
+      <motion.div
+        animate={{
+          scale: [1, 1.25, 1],
+          opacity: [0.15, 0.3, 0.15],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 8,
+          ease: 'easeInOut',
+        }}
+        className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.25, 0.1],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 10,
+          ease: 'easeInOut',
+          delay: 1,
+        }}
+        className="absolute bottom-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold uppercase tracking-wider mb-3">
-            <TrendingUp className="w-4 h-4" />
+        {/* Header with Motion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-bold uppercase tracking-wider mb-3">
+            <TrendingUp className="w-4 h-4 text-teal-400 animate-pulse" />
             <span>Real-Time Healthcare Impact</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
             Trusted by Thousands of Patients Daily
           </h2>
-          <p className="text-slate-400 text-sm sm:text-base mt-3">
-            MediCare Connect is transforming access to hospital appointments with high patient satisfaction and verified outcomes.
+          <p className="text-slate-300 text-sm sm:text-base mt-3 max-w-xl mx-auto">
+            Our centralized hospital ecosystem delivers verified clinical quality, seamless doctor scheduling, and digital records.
           </p>
-        </div>
+        </motion.div>
 
         {/* Stats Grid with Framer Motion Stagger */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {statItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
-                className="bg-slate-800/60 backdrop-blur-md rounded-3xl p-6 border border-slate-700/60 hover:border-teal-500/50 transition-all duration-300 group"
+                key={index}
+                variants={itemVariants}
+                whileHover={{ y: -8, scale: 1.03 }}
+                className="bg-white/5 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:border-teal-400/50 shadow-xl transition-all duration-300 group"
               >
+                {/* Icon Box */}
                 <div
-                  className={`w-12 h-12 rounded-2xl bg-gradient-to-tr ${item.color} flex items-center justify-center text-white shadow-lg mb-4 group-hover:scale-110 transition-transform`}
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-tr ${item.color} flex items-center justify-center text-white shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}
                 >
-                  <Icon className="w-6 h-6" />
+                  <Icon className="w-7 h-7" />
                 </div>
 
-                <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                  {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
-                  <span className="text-teal-400 font-bold ml-0.5">{item.suffix}</span>
+                {/* Counter */}
+                <div className="flex items-baseline gap-1">
+                  <h3 className="text-4xl sm:text-5xl font-black tracking-tight text-white group-hover:text-teal-300 transition-colors">
+                    {item.value}
+                  </h3>
+                  <span className="text-2xl font-bold text-teal-400">{item.suffix}</span>
                 </div>
 
-                <h3 className="text-base font-bold text-slate-200 mt-2">{item.label}</h3>
-                <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">{item.description}</p>
+                <p className="text-sm font-bold text-slate-200 mt-2">{item.label}</p>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{item.description}</p>
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
