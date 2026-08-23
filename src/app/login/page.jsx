@@ -60,13 +60,22 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Credentials Notice */}
-        <div className="bg-teal-50/80 border border-teal-200 rounded-2xl p-3.5 text-xs text-teal-900 space-y-1">
-          <p className="font-bold flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-teal-700" />
-            Quick Demo Login / Auto Registration
-          </p>
-          <p className="text-slate-600">
-            Use any registered email/password or create a new account via the Register button below.
+        <div className="bg-teal-50/80 border border-teal-200 rounded-2xl p-3.5 text-xs text-teal-900 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="font-bold flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-teal-700" />
+              Default Admin Account
+            </p>
+            <button
+              type="button"
+              onClick={() => setFormData({ email: 'admin@medicare.com', password: 'admin123' })}
+              className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[11px] font-bold shadow-xs transition-colors"
+            >
+              Fill Admin Info
+            </button>
+          </div>
+          <p className="text-slate-600 font-mono text-[11px]">
+            admin@medicare.com / admin123
           </p>
         </div>
 
