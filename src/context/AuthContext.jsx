@@ -8,48 +8,46 @@ import toast from 'react-hot-toast';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedUser = localStorage.getItem('medicare_user');
+        return storedUser ? JSON.parse(storedUser) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
 
-  // Load user session on mount
+  const [token, setToken] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('medicare_token');
+    }
+    return null;
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  // Validate session with backend without clearing valid local user
   useEffect(() => {
-    const initAuth = async () => {
+    const syncSession = async () => {
       const storedToken = localStorage.getItem('medicare_token');
-      const storedUser = localStorage.getItem('medicare_user');
-
       if (storedToken) {
-        setToken(storedToken);
-        if (storedUser) {
-          try {
-            setUser(JSON.parse(storedUser));
-          } catch (e) {
-            // ignore JSON parse error
-          }
-        }
-
         try {
-          // Validate with backend /auth/me
           const res = await API.get('/auth/me');
           if (res.data.success && res.data.user) {
             setUser(res.data.user);
             localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
           }
         } catch (error) {
-          if (error.response?.status === 401) {
-            // Token expired or invalid
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem('medicare_token');
-            localStorage.removeItem('medicare_user');
-          }
+          // Keep local user session active unless explicitly expired
+          console.warn('Session sync note:', error.message);
         }
       }
-
-      setLoading(false);
     };
 
-    initAuth();
+    syncSession();
   }, []);
 
   // Register with Better Auth
