@@ -85,15 +85,18 @@ export default function Navbar() {
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+              const isActive =
+                link.href === '/'
+                  ? pathname === '/'
+                  : pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-xl text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-teal-50 text-teal-700 font-semibold shadow-xs'
-                      : 'text-gray-600 hover:text-teal-600 hover:bg-gray-50'
+                      ? 'bg-teal-50 text-teal-700 font-bold shadow-xs'
+                      : 'text-gray-600 hover:text-teal-600 hover:bg-gray-50 font-medium'
                   }`}
                 >
                   {link.name}
@@ -204,20 +207,26 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-6 space-y-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block px-4 py-2.5 rounded-xl text-base font-medium ${
-                pathname === link.href
-                  ? 'bg-teal-50 text-teal-700 font-semibold'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive =
+              link.href === '/'
+                ? pathname === '/'
+                : pathname === link.href || pathname.startsWith(`${link.href}/`);
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-4 py-2.5 rounded-xl text-base ${
+                  isActive
+                    ? 'bg-teal-50 text-teal-700 font-bold'
+                    : 'text-gray-700 hover:bg-gray-50 font-medium'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
 
           <div className="border-t border-gray-100 pt-3">
             {isAuthenticated ? (
