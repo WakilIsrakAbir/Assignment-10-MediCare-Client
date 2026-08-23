@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import API from '../../services/api';
-import { Star, Clock, Award, DollarSign, ArrowRight, Stethoscope, Building2 } from 'lucide-react';
+import { Star, Clock, Award, DollarSign, ArrowRight, Stethoscope, Building2, UserCheck } from 'lucide-react';
 
 export default function FeaturedDoctors() {
   const [doctors, setDoctors] = useState([]);
@@ -13,51 +13,14 @@ export default function FeaturedDoctors() {
     const fetchFeatured = async () => {
       try {
         const res = await API.get('/doctors/featured');
-        if (res.data.success && res.data.data.length > 0) {
+        if (res.data.success && Array.isArray(res.data.data)) {
           setDoctors(res.data.data);
         } else {
-          // Fallback sample data if server is connecting for first time
-          setDoctors([
-            {
-              _id: '1',
-              doctorName: 'Dr. Sarah Jenkins',
-              specialization: 'Cardiology',
-              qualifications: 'MBBS, MD (Cardiology), FACC',
-              experience: 12,
-              consultationFee: 120,
-              hospitalName: 'Apollo Heart Center',
-              profileImage: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80',
-              rating: 4.9,
-              totalReviews: 128,
-            },
-            {
-              _id: '2',
-              doctorName: 'Dr. Marcus Vance',
-              specialization: 'Neurology',
-              qualifications: 'MBBS, DM (Neurology), MRCP (UK)',
-              experience: 15,
-              consultationFee: 150,
-              hospitalName: 'Novant Neuro Institute',
-              profileImage: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80',
-              rating: 4.8,
-              totalReviews: 95,
-            },
-            {
-              _id: '3',
-              doctorName: 'Dr. Elena Rostova',
-              specialization: 'Pediatrics',
-              qualifications: 'MBBS, DCH, MD (Pediatrics)',
-              experience: 8,
-              consultationFee: 90,
-              hospitalName: 'Childrens Care Hospital',
-              profileImage: 'https://images.unsplash.com/photo-1594824813633-89871a339943?auto=format&fit=crop&w=600&q=80',
-              rating: 5.0,
-              totalReviews: 210,
-            },
-          ]);
+          setDoctors([]);
         }
       } catch (error) {
         console.error('Error fetching featured doctors:', error);
+        setDoctors([]);
       } finally {
         setLoading(false);
       }
@@ -90,7 +53,7 @@ export default function FeaturedDoctors() {
           </Link>
         </div>
 
-        {/* Doctor Grid */}
+        {/* Doctor Grid or Empty State */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((n) => (
@@ -102,7 +65,7 @@ export default function FeaturedDoctors() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : doctors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {doctors.map((doctor) => (
               <div
@@ -164,6 +127,30 @@ export default function FeaturedDoctors() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-slate-50 to-teal-50/30 rounded-3xl border border-slate-200/80 p-12 text-center max-w-2xl mx-auto shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center mx-auto mb-4">
+              <UserCheck className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No Verified Doctors Currently Listed</h3>
+            <p className="text-sm text-slate-600 mb-6 leading-relaxed">
+              New medical specialists can register their doctor account. Once verified and approved by the platform Administrator, their profiles will appear here automatically.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/register"
+                className="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors shadow-sm"
+              >
+                Register as Doctor
+              </Link>
+              <Link
+                href="/login"
+                className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+              >
+                Admin Login
+              </Link>
+            </div>
           </div>
         )}
       </div>
