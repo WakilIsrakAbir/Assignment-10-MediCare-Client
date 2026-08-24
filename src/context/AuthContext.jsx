@@ -8,46 +8,46 @@ import toast from 'react-hot-toast';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const storedUser = localStorage.getItem('medicare_user');
-        return storedUser ? JSON.parse(storedUser) : null;
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
-
-  const [token, setToken] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('medicare_token');
-    }
-    return null;
-  });
-
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
-  // Validate session with backend without clearing valid local user
+  // Initialize session from localStorage & sync with backend on client mount
   useEffect(() => {
-    const syncSession = async () => {
-      const storedToken = localStorage.getItem('medicare_token');
-      if (storedToken) {
-        try {
-          const res = await API.get('/auth/me');
-          if (res.data.success && res.data.user) {
-            setUser(res.data.user);
-            localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
+    const initAndSyncSession = async () => {
+      try {
+        const storedToken = localStorage.getItem('medicare_token');
+        const storedUser = localStorage.getItem('medicare_user');
+
+        if (storedToken && storedUser) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            setUser(parsed);
+            setToken(storedToken);
+          } catch (e) {}
+
+          try {
+            const res = await API.get('/auth/me');
+            if (res.data.success && res.data.user) {
+              setUser(res.data.user);
+              localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
+            }
+          } catch (error) {
+            if (error.response?.status === 401) {
+              localStorage.removeItem('medicare_token');
+              localStorage.removeItem('medicare_user');
+              setUser(null);
+              setToken(null);
+            }
           }
-        } catch (error) {
-          // Keep local user session active unless explicitly expired
-          console.warn('Session sync note:', error.message);
         }
+      } finally {
+        setAuthReady(true);
       }
     };
 
-    syncSession();
+    initAndSyncSession();
   }, []);
 
   // Register with Better Auth
@@ -141,8 +141,10 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         token,
         loading,
+        authReady,
         registerUser,
         loginUser,
         loginWithGoogle,

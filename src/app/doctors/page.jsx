@@ -91,13 +91,13 @@ export default function FindDoctorsPage() {
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Search Input */}
             <div className="md:col-span-6 relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search doctor by name, clinic, or keyword..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-300 text-sm font-semibold text-slate-900 placeholder-slate-500 bg-slate-50/50 focus:bg-white focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
               />
             </div>
 
@@ -110,7 +110,7 @@ export default function FindDoctorsPage() {
                   setPage(1);
                 }}
                 aria-label="Filter by specialization"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:border-teal-500 bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-300 text-sm font-semibold text-slate-900 focus:outline-none focus:border-teal-600 bg-white cursor-pointer"
               >
                 {specializations.map((spec) => (
                   <option key={spec} value={spec}>
@@ -129,7 +129,7 @@ export default function FindDoctorsPage() {
                   setPage(1);
                 }}
                 aria-label="Sort doctors by"
-                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-sm text-slate-700 focus:outline-none focus:border-teal-500 bg-white"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-300 text-sm font-semibold text-slate-900 focus:outline-none focus:border-teal-600 bg-white cursor-pointer"
               >
                 <option value="rating">Sort by: Highest Rating</option>
                 <option value="experience">Sort by: Experience</option>

@@ -32,7 +32,7 @@ import {
 import toast from 'react-hot-toast';
 
 export default function AdminDashboardPage() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { user, authReady, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -45,18 +45,16 @@ export default function AdminDashboardPage() {
   const [adminAnalytics, setAdminAnalytics] = useState(null);
   const [userSearchTerm, setUserSearchTerm] = useState('');
 
-  // Route protection
+  // Route protection with authReady check
   useEffect(() => {
-    if (!authLoading) {
+    if (authReady) {
       if (!isAuthenticated || !user) {
-        toast.error('Please login to access administrator dashboard');
         router.replace('/login');
       } else if (user.role !== 'admin') {
-        toast.error(`Access restricted. Redirecting to ${user.role} dashboard.`);
         router.replace(`/dashboard/${user.role}`);
       }
     }
-  }, [user, authLoading, isAuthenticated, router]);
+  }, [user, authReady, isAuthenticated, router]);
 
   // Fetch Admin Data
   useEffect(() => {
@@ -72,20 +70,25 @@ export default function AdminDashboardPage() {
         const res = await API.get('/admin/analytics');
         if (res.data.success) setAdminAnalytics(res.data);
       }
-      if (activeTab === 'users') {
+      if (activeTab === 'users' || activeTab === 'overview') {
         const res = await API.get('/admin/users');
         if (res.data.success) setAdminUsers(res.data.data || []);
       }
-      if (activeTab === 'doctors') {
+      if (activeTab === 'doctors' || activeTab === 'overview') {
         const res = await API.get('/admin/doctors');
         if (res.data.success) setAdminDoctors(res.data.data || []);
       }
-      if (activeTab === 'appointments') {
+      if (activeTab === 'appointments' || activeTab === 'overview') {
         const res = await API.get('/admin/appointments');
         if (res.data.success) setAdminAppointments(res.data.data || []);
       }
     } catch (err) {
-      console.error('Admin fetch error:', err.message);
+      if (err.response?.status === 401) {
+        toast.error('Session expired or unauthorized. Please log in.');
+        router.replace('/login');
+      } else {
+        console.warn('Admin fetch status:', err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -115,15 +118,23 @@ export default function AdminDashboardPage() {
 
   const handleDoctorVerification = async (id, status) => {
     try {
-      await API.patch(`/admin/doctors/${id}/verify`, { verificationStatus: status });
-      toast.success(`Doctor verification status updated to ${status}`);
-      fetchAdminData();
+      const res = await API.patch(`/admin/doctors/${id}/verify`, { verificationStatus: status });
+      if (res.data.success) {
+        toast.success(`Doctor verification status updated to ${status}`);
+        // Optimistic UI state update
+        setAdminDoctors((prev) =>
+          prev.map((doc) => (doc._id === id ? { ...doc, verificationStatus: status } : doc))
+        );
+        fetchAdminData();
+      } else {
+        toast.error(res.data.message || 'Update verification failed');
+      }
     } catch (err) {
-      toast.error('Update verification failed');
+      toast.error(err.response?.data?.message || 'Update verification failed');
     }
   };
 
-  if (authLoading) {
+  if (!authReady) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
@@ -180,8 +191,24 @@ export default function AdminDashboardPage() {
           })}
         </div>
 
+        {/* Loading Skeleton during Tab Data Fetch */}
+        {loading && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6 animate-pulse">
+            <div className="h-7 bg-slate-200 rounded-lg w-1/3"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="h-28 bg-slate-100 rounded-2xl"></div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+              <div className="lg:col-span-8 h-72 bg-slate-100 rounded-3xl"></div>
+              <div className="lg:col-span-4 h-72 bg-slate-100 rounded-3xl"></div>
+            </div>
+          </div>
+        )}
+
         {/* Tab 1: Overview & Analytics */}
-        {activeTab === 'overview' && (
+        {!loading && activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Real KPI Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -256,7 +283,7 @@ export default function AdminDashboardPage() {
                     </ResponsiveContainer>
                   ) : (
                     <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                      No doctors registered in departments yet
+                      No distribution data available
                     </div>
                   )}
                 </div>
@@ -266,7 +293,7 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Tab 2: Manage Users */}
-        {activeTab === 'users' && (
+        {!loading && activeTab === 'users' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -342,7 +369,7 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Tab 3: Verify Doctors */}
-        {activeTab === 'doctors' && (
+        {!loading && activeTab === 'doctors' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">Doctor Verification & Approvals</h3>
@@ -393,7 +420,7 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Tab 4: All Appointments */}
-        {activeTab === 'appointments' && (
+        {!loading && activeTab === 'appointments' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">All Platform Appointments</h3>

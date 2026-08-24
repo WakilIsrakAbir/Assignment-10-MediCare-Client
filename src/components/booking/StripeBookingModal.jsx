@@ -63,7 +63,7 @@ function CheckoutForm({ doctor, selectedDay, selectedSlot, symptoms, onClose, on
       });
 
       if (confirmRes.data.success) {
-        toast.success('Payment successful & Appointment confirmed!');
+        toast.success('Payment successful! Request sent to doctor for confirmation.');
         onSuccess(appointment);
         onClose();
       }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { HeartPulse, User, Mail, Lock, Image as ImageIcon, CheckCircle, AlertCircle, ArrowRight, Stethoscope } from 'lucide-react';
+import { HeartPulse, User, Mail, Lock, Image as ImageIcon, CheckCircle, AlertCircle, ArrowRight, Stethoscope, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -15,6 +15,7 @@ export default function RegisterPage() {
     password: '',
     role: 'patient',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const { registerUser, loginWithGoogle } = useAuth();
@@ -100,8 +101,8 @@ export default function RegisterPage() {
                 placeholder="e.g. Sarah Connor"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full pl-11 pr-4 py-3 rounded-2xl border text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all ${
-                  errors.name ? 'border-red-400 bg-red-50/20' : 'border-slate-200 focus:border-teal-500'
+                className={`w-full pl-11 pr-4 py-3 rounded-2xl border text-sm font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 bg-slate-50/50 focus:bg-white transition-all ${
+                  errors.name ? 'border-red-400 bg-red-50/20' : 'border-slate-300 focus:border-teal-600'
                 }`}
               />
             </div>
@@ -110,19 +111,19 @@ export default function RegisterPage() {
 
           {/* Email Address */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full pl-11 pr-4 py-3 rounded-2xl border text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all ${
-                  errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-200 focus:border-teal-500'
+                className={`w-full pl-11 pr-4 py-3 rounded-2xl border text-sm font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 bg-slate-50/50 focus:bg-white transition-all ${
+                  errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-300 focus:border-teal-600'
                 }`}
               />
             </div>
@@ -131,34 +132,34 @@ export default function RegisterPage() {
 
           {/* Photo URL */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Photo URL <span className="text-slate-400 lowercase font-normal">(optional)</span>
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              Photo URL <span className="text-slate-500 lowercase font-normal">(optional)</span>
             </label>
             <div className="relative">
-              <ImageIcon className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <ImageIcon className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="url"
                 placeholder="https://example.com/avatar.jpg"
                 value={formData.Photo}
                 onChange={(e) => setFormData({ ...formData, Photo: e.target.value })}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-300 text-sm font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 bg-slate-50/50 focus:bg-white transition-all"
               />
             </div>
           </div>
 
           {/* Role Selection */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
               Registering As
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, role: 'patient' })}
-                className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all ${
+                className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   formData.role === 'patient'
-                    ? 'bg-teal-50 border-teal-500 text-teal-800 shadow-xs'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-teal-50 border-teal-600 text-teal-800 shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 Patient
@@ -166,10 +167,10 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, role: 'doctor' })}
-                className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all ${
+                className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                   formData.role === 'doctor'
-                    ? 'bg-teal-50 border-teal-500 text-teal-800 shadow-xs'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-teal-50 border-teal-600 text-teal-800 shadow-xs'
+                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 Doctor / Specialist
@@ -179,21 +180,29 @@ export default function RegisterPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`w-full pl-11 pr-4 py-3 rounded-2xl border text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all ${
-                  errors.password ? 'border-red-400 bg-red-50/20' : 'border-slate-200 focus:border-teal-500'
+                className={`w-full pl-11 pr-11 py-3 rounded-2xl border text-sm font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 bg-slate-50/50 focus:bg-white transition-all ${
+                  errors.password ? 'border-red-400 bg-red-50/20' : 'border-slate-300 focus:border-teal-600'
                 }`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-teal-700 transition-colors focus:outline-none cursor-pointer"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
             {errors.password ? (
               <p className="text-xs text-red-500 mt-1 flex items-start gap-1">
@@ -201,8 +210,8 @@ export default function RegisterPage() {
                 {errors.password}
               </p>
             ) : (
-              <p className="text-[11px] text-slate-400 mt-1">
-                Must be $\ge$ 6 characters, with at least 1 number and 1 special symbol.
+              <p className="text-[11px] text-slate-500 font-medium mt-1">
+                Must be at least 6 characters, with at least 1 number and 1 special symbol.
               </p>
             )}
           </div>
@@ -211,7 +220,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-lg shadow-teal-600/30 hover:shadow-xl transition-all disabled:opacity-50"
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-lg shadow-teal-600/30 hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? 'Creating Account...' : 'Create Account'}
             <ArrowRight className="w-4 h-4" />
@@ -224,7 +233,7 @@ export default function RegisterPage() {
             <div className="w-full border-t border-slate-200"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-3 text-slate-400 font-semibold">Or continue with</span>
+            <span className="bg-white px-3 text-slate-500 font-bold">Or continue with</span>
           </div>
         </div>
 
@@ -233,7 +242,7 @@ export default function RegisterPage() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-semibold text-slate-700 shadow-xs transition-colors"
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-sm font-bold text-slate-800 shadow-xs transition-colors cursor-pointer"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path

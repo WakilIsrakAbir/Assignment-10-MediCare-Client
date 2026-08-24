@@ -19,11 +19,17 @@ import {
 
 export default function Navbar() {
   const { user, logoutUser, isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
+
+  // Set mounted flag to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Handle scroll shadow effect
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function Navbar() {
     { name: 'Find Doctors', href: '/doctors' },
     { name: 'About Us', href: '/about' },
     { name: 'Contact Us', href: '/contact' },
-    ...(isAuthenticated ? [{ name: 'Dashboard', href: '/dashboard' }] : []),
+    ...(mounted && isAuthenticated ? [{ name: 'Dashboard', href: '/dashboard' }] : []),
   ];
 
   return (
@@ -107,96 +113,103 @@ export default function Navbar() {
 
           {/* Right Action / Profile */}
           <div className="hidden md:flex items-center gap-4">
-            {isAuthenticated ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 transition-colors border border-gray-200"
-                >
-                  <img
-                    src={user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'}
-                    alt={user?.name || 'User'}
-                    className="w-9 h-9 rounded-full object-cover border-2 border-teal-500 shadow-xs"
-                  />
-                  <div className="text-left">
-                    <span className="block text-xs font-semibold text-gray-800 leading-none">
-                      {user?.name?.split(' ')[0] || 'User'}
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-teal-600">
-                      {user?.role || 'patient'}
-                    </span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
-                </button>
-
-                {/* Dropdown Menu */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-bold text-gray-800 truncate">{user?.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                      <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold uppercase bg-teal-100 text-teal-800 rounded-md">
-                        Role: {user?.role || 'patient'}
+            {mounted ? (
+              isAuthenticated ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <img
+                      src={user?.Photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80'}
+                      alt={user?.name || 'User'}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80';
+                      }}
+                      className="w-9 h-9 rounded-full object-cover border-2 border-teal-500 shadow-xs bg-slate-100"
+                    />
+                    <div className="text-left">
+                      <span className="block text-xs font-semibold text-gray-800 leading-none">
+                        {user?.name?.split(' ')[0] || 'User'}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-teal-600">
+                        {user?.role || 'patient'}
                       </span>
                     </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                  </button>
 
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
-                    >
-                      <LayoutDashboard className="w-4 h-4 text-teal-600" />
-                      Dashboard
-                    </Link>
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-bold text-gray-800 truncate">{user?.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold uppercase bg-teal-100 text-teal-800 rounded-md">
+                          Role: {user?.role || 'patient'}
+                        </span>
+                      </div>
 
-                    <Link
-                      href="/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
-                    >
-                      <User className="w-4 h-4 text-teal-600" />
-                      My Profile
-                    </Link>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-teal-600" />
+                        Dashboard
+                      </Link>
 
-                    <div className="border-t border-gray-100 my-1"></div>
+                      <Link
+                        href="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-teal-600" />
+                        My Profile
+                      </Link>
 
-                    <button
-                      onClick={() => {
-                        setDropdownOpen(false);
-                        logoutUser();
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
+                      <div className="border-t border-gray-100 my-1"></div>
+
+                      <button
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          logoutUser();
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="px-5 py-2.5 text-sm font-medium text-teal-700 hover:text-teal-800 hover:bg-teal-50/80 rounded-xl transition-all"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )
             ) : (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/login"
-                  className="px-5 py-2.5 text-sm font-medium text-teal-700 hover:text-teal-800 hover:bg-teal-50/80 rounded-xl transition-all"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg"
-                >
-                  Register
-                </Link>
-              </div>
+              <div className="w-28 h-9" />
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl text-gray-600 hover:text-teal-600 hover:bg-gray-100 transition-colors"
-              aria-label="Toggle menu"
+              className="p-2 rounded-xl text-gray-700 hover:text-teal-600 hover:bg-gray-100 focus:outline-none"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -229,54 +242,60 @@ export default function Navbar() {
           })}
 
           <div className="border-t border-gray-100 pt-3">
-            {isAuthenticated ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 px-4 py-2">
-                  <img
-                    src={user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'}
-                    alt="User"
-                    className="w-10 h-10 rounded-full object-cover border border-teal-500"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+            {mounted && (
+              isAuthenticated ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <img
+                      src={user?.Photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80'}
+                      alt="User"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80';
+                      }}
+                      className="w-10 h-10 rounded-full object-cover border border-teal-500 bg-slate-100"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
                   </div>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 rounded-lg"
+                  >
+                    My Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logoutUser();
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
                 </div>
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 rounded-lg"
-                >
-                  My Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    logoutUser();
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-sm font-medium text-teal-700 bg-teal-50 rounded-xl"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl"
-                >
-                  Register
-                </Link>
-              </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-sm font-medium text-teal-700 bg-teal-50 rounded-xl"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )
             )}
           </div>
         </div>

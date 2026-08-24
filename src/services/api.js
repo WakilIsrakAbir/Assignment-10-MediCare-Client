@@ -15,4 +15,15 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // If backend is restarting or network disconnected, return clean rejected error
+    if (!error.response) {
+      console.warn('Backend server connectivity warning (Network issue or server reloading)');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default API;

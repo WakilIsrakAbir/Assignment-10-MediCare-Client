@@ -21,7 +21,7 @@ import {
 import toast from 'react-hot-toast';
 
 export default function DoctorDashboardPage() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { user, setUser, authReady, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -29,6 +29,7 @@ export default function DoctorDashboardPage() {
 
   // Doctor states
   const [doctorAppointments, setDoctorAppointments] = useState([]);
+  const [doctorReviews, setDoctorReviews] = useState([]);
   const [doctorSchedule, setDoctorSchedule] = useState({
     availableDays: [],
     availableSlots: [],
@@ -38,6 +39,7 @@ export default function DoctorDashboardPage() {
     hospitalName: '',
     specialization: 'General Medicine',
     about: '',
+    profileImage: '',
   });
   const [newSlotInput, setNewSlotInput] = useState('');
   const [newDayInput, setNewDayInput] = useState('Monday');
@@ -55,16 +57,14 @@ export default function DoctorDashboardPage() {
 
   // Route protection
   useEffect(() => {
-    if (!authLoading) {
+    if (authReady) {
       if (!isAuthenticated || !user) {
-        toast.error('Please login to access doctor dashboard');
         router.replace('/login');
       } else if (user.role !== 'doctor') {
-        toast.error(`Access restricted. Redirecting to ${user.role} dashboard.`);
         router.replace(`/dashboard/${user.role}`);
       }
     }
-  }, [user, authLoading, isAuthenticated, router]);
+  }, [user, authReady, isAuthenticated, router]);
 
   // Fetch Doctor Data
   useEffect(() => {
@@ -84,10 +84,26 @@ export default function DoctorDashboardPage() {
         const res = await API.get('/doctors/me/profile');
         if (res.data.success && res.data.data) {
           setDoctorSchedule(res.data.data);
+          if (res.data.data.profileImage && user && user.Photo !== res.data.data.profileImage && setUser) {
+            const updated = { ...user, Photo: res.data.data.profileImage };
+            setUser(updated);
+            localStorage.setItem('medicare_user', JSON.stringify(updated));
+          }
+        }
+      }
+      if (activeTab === 'reviews' || activeTab === 'overview') {
+        const revRes = await API.get('/reviews/doctor-received');
+        if (revRes.data.success) {
+          setDoctorReviews(revRes.data.data || []);
         }
       }
     } catch (err) {
-      console.error('Doctor data fetch error:', err.message);
+      if (err.response?.status === 401) {
+        toast.error('Session expired. Please log in.');
+        router.replace('/login');
+      } else {
+        console.warn('Doctor fetch status:', err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -120,9 +136,16 @@ export default function DoctorDashboardPage() {
   const handleSaveSchedule = async (e) => {
     e.preventDefault();
     try {
-      await API.put('/doctors/me/profile', doctorSchedule);
-      toast.success('Doctor profile & schedules saved to database!');
-      fetchDoctorData();
+      const res = await API.put('/doctors/me/profile', doctorSchedule);
+      if (res.data.success) {
+        toast.success('Doctor profile & photo updated in database!');
+        if (doctorSchedule.profileImage && setUser) {
+          const updated = { ...user, Photo: doctorSchedule.profileImage };
+          setUser(updated);
+          localStorage.setItem('medicare_user', JSON.stringify(updated));
+        }
+        fetchDoctorData();
+      }
     } catch (err) {
       toast.error('Failed to update schedule');
     }
@@ -193,7 +216,7 @@ export default function DoctorDashboardPage() {
     }
   };
 
-  if (authLoading) {
+  if (!authReady) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
@@ -214,9 +237,13 @@ export default function DoctorDashboardPage() {
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <img
-              src={user?.Photo || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=160&q=80'}
+              src={doctorSchedule?.profileImage || user?.Photo || 'https://images.unsplash.com/photo-1594824813686-2a91a92e10fb?auto=format&fit=crop&w=160&q=80'}
               alt="Avatar"
-              className="w-14 h-14 rounded-2xl object-cover border-2 border-teal-500 shadow-xs"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1594824813686-2a91a92e10fb?auto=format&fit=crop&w=160&q=80';
+              }}
+              className="w-14 h-14 rounded-2xl object-cover border-2 border-teal-500 shadow-xs bg-slate-100"
             />
             <div>
               <div className="flex items-center gap-2">
@@ -235,6 +262,7 @@ export default function DoctorDashboardPage() {
           {[
             { id: 'overview', label: 'Doctor Overview', icon: LayoutDashboard },
             { id: 'requests', label: 'Appointment Requests', icon: CalendarCheck },
+            { id: 'reviews', label: 'Patient Reviews', icon: Star },
             { id: 'schedule', label: 'Manage Schedule', icon: Clock },
             { id: 'profile', label: 'Doctor Profile Settings', icon: Stethoscope },
           ].map((tab) => {
@@ -255,8 +283,25 @@ export default function DoctorDashboardPage() {
           })}
         </div>
 
+        {/* Loading Skeleton during Tab Data Fetch */}
+        {loading && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6 animate-pulse">
+            <div className="h-7 bg-slate-200 rounded-lg w-1/3"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-28 bg-slate-100 rounded-2xl"></div>
+              ))}
+            </div>
+            <div className="space-y-3 pt-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-20 bg-slate-100 rounded-2xl w-full"></div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tab 1: Overview */}
-        {activeTab === 'overview' && (
+        {!loading && activeTab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
@@ -326,10 +371,8 @@ export default function DoctorDashboardPage() {
               )}
             </div>
           </div>
-        )}
-
-        {/* Tab 2: Appointment Requests */}
-        {activeTab === 'requests' && (
+        )}        {/* Tab 2: Appointment Requests */}
+        {!loading && activeTab === 'requests' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">Patient Appointment Requests</h3>
@@ -384,18 +427,20 @@ export default function DoctorDashboardPage() {
                           </button>
                         </>
                       )}
+
                       {appt.appointmentStatus === 'accepted' && (
                         <button
                           onClick={() => handleDoctorStatusChange(appt._id, 'completed', appt)}
-                          className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 shadow-sm"
+                          className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 shadow-sm"
                         >
-                          Mark Completed & Write Prescription
+                          Complete & Issue Prescription
                         </button>
                       )}
+
                       {appt.appointmentStatus === 'completed' && (
                         <button
                           onClick={() => handleViewPrescription(appt._id)}
-                          className="px-3 py-2 bg-white border border-teal-600 text-teal-700 rounded-xl text-xs font-bold hover:bg-teal-50"
+                          className="px-3.5 py-2 bg-white border border-teal-600 text-teal-700 rounded-xl text-xs font-bold hover:bg-teal-50"
                         >
                           View Prescription
                         </button>
@@ -408,8 +453,81 @@ export default function DoctorDashboardPage() {
           </div>
         )}
 
-        {/* Tab 3: Manage Schedule */}
-        {activeTab === 'schedule' && (
+        {/* Tab 3: Patient Reviews & Ratings */}
+        {!loading && activeTab === 'reviews' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Patient Reviews & Star Ratings</h3>
+                <p className="text-xs text-slate-500">Real feedback submitted by your patients after consultation</p>
+              </div>
+              <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-2xl">
+                <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+                <div>
+                  <span className="text-base font-black text-amber-900">
+                    {doctorSchedule?.rating ? Number(doctorSchedule.rating).toFixed(1) : '5.0'} / 5.0
+                  </span>
+                  <span className="text-[11px] text-amber-700 block font-bold">
+                    ({doctorReviews.length} Verified Reviews)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {doctorReviews.length === 0 ? (
+              <div className="py-16 text-center text-slate-500 bg-slate-50 rounded-3xl border border-slate-100">
+                <Star className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <h4 className="text-sm font-bold text-slate-800">No Patient Reviews Received Yet</h4>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                  Patients can write reviews and give star ratings after their visits are marked completed.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {doctorReviews.map((rev) => (
+                  <div
+                    key={rev._id}
+                    className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4 hover:border-teal-300 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={rev.patientPhoto || rev.patientId?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'}
+                          alt="Patient"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80';
+                          }}
+                          className="w-10 h-10 rounded-full object-cover border border-teal-500 bg-white"
+                        />
+                        <div>
+                          <h4 className="font-bold text-slate-900 text-sm">
+                            {rev.patientName || rev.patientId?.name || 'Verified Patient'}
+                          </h4>
+                          <span className="text-[11px] text-slate-400">
+                            {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Recent Consultation'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 bg-white px-2.5 py-1 rounded-xl border border-slate-200">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="text-xs font-bold text-slate-800">{rev.rating}.0</span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic bg-white p-3.5 rounded-xl border border-slate-100">
+                      "{rev.reviewText}"
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 4: Manage Schedule */}
+        {!loading && activeTab === 'schedule' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">Manage Visiting Schedule & Slots</h3>

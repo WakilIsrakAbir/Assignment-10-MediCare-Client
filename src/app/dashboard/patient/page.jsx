@@ -25,7 +25,7 @@ import {
 import toast from 'react-hot-toast';
 
 export default function PatientDashboardPage() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { user, authReady, isAuthenticated } = useAuth();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -42,16 +42,14 @@ export default function PatientDashboardPage() {
 
   // Route protection
   useEffect(() => {
-    if (!authLoading) {
+    if (authReady) {
       if (!isAuthenticated || !user) {
-        toast.error('Please login to access patient dashboard');
         router.replace('/login');
       } else if (user.role !== 'patient') {
-        toast.error(`Access restricted. Redirecting to ${user.role} dashboard.`);
         router.replace(`/dashboard/${user.role}`);
       }
     }
-  }, [user, authLoading, isAuthenticated, router]);
+  }, [user, authReady, isAuthenticated, router]);
 
   // Fetch Patient Data
   useEffect(() => {
@@ -76,7 +74,12 @@ export default function PatientDashboardPage() {
         if (res.data.success) setPatientReviews(res.data.data || []);
       }
     } catch (err) {
-      console.error('Patient data fetch error:', err.message);
+      if (err.response?.status === 401) {
+        toast.error('Session expired. Please log in.');
+        router.replace('/login');
+      } else {
+        console.warn('Patient fetch status:', err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -158,7 +161,7 @@ export default function PatientDashboardPage() {
     }
   };
 
-  if (authLoading) {
+  if (!authReady) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
@@ -228,8 +231,25 @@ export default function PatientDashboardPage() {
           })}
         </div>
 
+        {/* Loading Skeleton during Tab Data Fetch */}
+        {loading && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6 animate-pulse">
+            <div className="h-7 bg-slate-200 rounded-lg w-1/3"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="h-28 bg-slate-100 rounded-2xl"></div>
+              ))}
+            </div>
+            <div className="space-y-3 pt-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-16 bg-slate-100 rounded-2xl w-full"></div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tab 1: Overview */}
-        {activeTab === 'overview' && (
+        {!loading && activeTab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
@@ -315,7 +335,7 @@ export default function PatientDashboardPage() {
         )}
 
         {/* Tab 2: My Appointments */}
-        {activeTab === 'appointments' && (
+        {!loading && activeTab === 'appointments' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -376,12 +396,27 @@ export default function PatientDashboardPage() {
                         </td>
                         <td className="py-3.5 px-4 text-right space-x-2">
                           {appt.appointmentStatus === 'completed' && (
-                            <button
-                              onClick={() => handleViewPrescription(appt._id)}
-                              className="px-2.5 py-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg"
-                            >
-                              Prescription
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleViewPrescription(appt._id)}
+                                className="px-2.5 py-1 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg"
+                              >
+                                Prescription
+                              </button>
+                              <button
+                                onClick={() => setReviewModal({
+                                  open: true,
+                                  doctorId: appt.doctorId?._id || appt.doctorId,
+                                  doctorName: appt.doctorId?.doctorName || 'Doctor',
+                                  rating: 5,
+                                  reviewText: '',
+                                  editId: null
+                                })}
+                                className="px-2.5 py-1 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg"
+                              >
+                                ★ Rate & Review
+                              </button>
+                            </>
                           )}
                           {appt.appointmentStatus !== 'completed' && appt.appointmentStatus !== 'cancelled' && (
                             <>
@@ -421,6 +456,29 @@ export default function PatientDashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600">🗓️ {appt.appointmentDate} at {appt.appointmentTime}</p>
+                    {appt.appointmentStatus === 'completed' && (
+                      <div className="flex gap-2 pt-2 border-t border-slate-200">
+                        <button
+                          onClick={() => handleViewPrescription(appt._id)}
+                          className="px-3 py-1.5 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-xl"
+                        >
+                          Prescription
+                        </button>
+                        <button
+                          onClick={() => setReviewModal({
+                            open: true,
+                            doctorId: appt.doctorId?._id || appt.doctorId,
+                            doctorName: appt.doctorId?.doctorName || 'Doctor',
+                            rating: 5,
+                            reviewText: '',
+                            editId: null
+                          })}
+                          className="px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl"
+                        >
+                          ★ Rate & Review
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -429,7 +487,7 @@ export default function PatientDashboardPage() {
         )}
 
         {/* Tab 3: Payment History */}
-        {activeTab === 'payments' && (
+        {!loading && activeTab === 'payments' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">Payment & Transaction Records</h3>
@@ -477,7 +535,7 @@ export default function PatientDashboardPage() {
         )}
 
         {/* Tab 4: My Reviews */}
-        {activeTab === 'reviews' && (
+        {!loading && activeTab === 'reviews' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
             <div>
               <h3 className="text-xl font-bold text-slate-900">My Doctor Reviews</h3>
@@ -668,6 +726,82 @@ export default function PatientDashboardPage() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rate & Review Doctor Modal */}
+      {reviewModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full space-y-6 border border-slate-100 shadow-2xl relative">
+            <button
+              onClick={() => setReviewModal({ open: false, doctorId: '', doctorName: '', rating: 5, reviewText: '', editId: null })}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-[10px] font-bold uppercase text-amber-600 tracking-wider bg-amber-50 px-2.5 py-1 rounded-md">
+                Patient Feedback
+              </span>
+              <h3 className="text-xl font-bold text-slate-900 mt-2">
+                Rate & Review {reviewModal.doctorName || 'Doctor'}
+              </h3>
+              <p className="text-xs text-slate-500">
+                Share your consultation experience to help other patients.
+              </p>
+            </div>
+
+            <form onSubmit={handleReviewSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 uppercase mb-2">Overall Rating</label>
+                <div className="flex gap-2 items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewModal({ ...reviewModal, rating: star })}
+                      className="p-1 hover:scale-115 transition-transform"
+                    >
+                      <Star
+                        className={`w-7 h-7 ${
+                          star <= reviewModal.rating
+                            ? 'text-amber-400 fill-amber-400'
+                            : 'text-slate-200'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-sm font-black text-slate-700 ml-2">{reviewModal.rating} / 5 Stars</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-800 uppercase mb-1.5">Your Experience / Feedback</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={reviewModal.reviewText}
+                  onChange={(e) => setReviewModal({ ...reviewModal, reviewText: e.target.value })}
+                  placeholder="Share details about the doctor's communication, diagnosis, care quality..."
+                  className="w-full p-3.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 placeholder-slate-400 bg-slate-50/60 focus:bg-white focus:border-teal-600 outline-none"
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setReviewModal({ open: false, doctorId: '', doctorName: '', rating: 5, reviewText: '', editId: null })}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-sm">
+                  {reviewModal.editId ? 'Update Review' : 'Submit Review'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
