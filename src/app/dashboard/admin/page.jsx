@@ -15,7 +15,8 @@ import {
   Trash2,
   CheckCircle,
   XCircle,
-  AlertTriangle
+  AlertTriangle,
+  CreditCard
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -42,6 +43,7 @@ export default function AdminDashboardPage() {
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminDoctors, setAdminDoctors] = useState([]);
   const [adminAppointments, setAdminAppointments] = useState([]);
+  const [adminPayments, setAdminPayments] = useState([]);
   const [adminAnalytics, setAdminAnalytics] = useState(null);
   const [userSearchTerm, setUserSearchTerm] = useState('');
 
@@ -81,6 +83,10 @@ export default function AdminDashboardPage() {
       if (activeTab === 'appointments' || activeTab === 'overview') {
         const res = await API.get('/admin/appointments');
         if (res.data.success) setAdminAppointments(res.data.data || []);
+      }
+      if (activeTab === 'payments' || activeTab === 'overview') {
+        const res = await API.get('/admin/payments');
+        if (res.data.success) setAdminPayments(res.data.data || []);
       }
     } catch (err) {
       if (err.response?.status === 401) {
@@ -178,6 +184,7 @@ export default function AdminDashboardPage() {
             { id: 'users', label: 'Manage Users', icon: Users },
             { id: 'doctors', label: 'Verify Doctors', icon: UserCheck },
             { id: 'appointments', label: 'All Appointments', icon: CalendarCheck },
+            { id: 'payments', label: 'Payment Records', icon: CreditCard },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -468,6 +475,59 @@ export default function AdminDashboardPage() {
                             appt.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                           }`}>
                             {appt.paymentStatus || 'unpaid'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 5: Payment Records */}
+        {!loading && activeTab === 'payments' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Payment & Transaction Records</h3>
+              <p className="text-xs text-slate-500">Monitor all consultation payments processed through Stripe</p>
+            </div>
+
+            {adminPayments.length === 0 ? (
+              <div className="py-16 text-center text-slate-500 bg-slate-50 rounded-3xl border border-slate-100">
+                <CreditCard className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <h4 className="text-sm font-bold text-slate-800">No Transactions Found</h4>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-600">
+                  <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th className="py-3 px-4">Transaction ID</th>
+                      <th className="py-3 px-4">Patient</th>
+                      <th className="py-3 px-4">Doctor</th>
+                      <th className="py-3 px-4">Amount</th>
+                      <th className="py-3 px-4">Date</th>
+                      <th className="py-3 px-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {adminPayments.map((p) => (
+                      <tr key={p._id} className="hover:bg-slate-50/50">
+                        <td className="py-3.5 px-4 font-mono text-xs font-bold text-slate-800">{p.transactionId}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="font-semibold text-slate-900">{p.patientId?.name || 'Patient'}</div>
+                          <div className="text-[11px] text-slate-400">{p.patientId?.email}</div>
+                        </td>
+                        <td className="py-3.5 px-4">{p.doctorId?.doctorName || 'Doctor'}</td>
+                        <td className="py-3.5 px-4 font-bold text-emerald-600">${p.amount}.00 USD</td>
+                        <td className="py-3.5 px-4 text-xs text-slate-400">
+                          {p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : 'Recent'}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                            Succeeded
                           </span>
                         </td>
                       </tr>

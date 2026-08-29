@@ -562,7 +562,20 @@ export default function PatientDashboardPage() {
                           <Star key={i} className="w-4 h-4 fill-amber-400" />
                         ))}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setReviewModal({
+                            open: true,
+                            doctorId: rev.doctorId?._id || rev.doctorId,
+                            doctorName: rev.doctorId?.doctorName || 'Doctor',
+                            rating: rev.rating || 5,
+                            reviewText: rev.reviewText || '',
+                            editId: rev._id,
+                          })}
+                          className="text-xs font-bold text-teal-600 hover:text-teal-800"
+                        >
+                          Edit
+                        </button>
                         <button
                           onClick={() => handleDeleteReview(rev._id)}
                           className="text-xs font-bold text-red-600 hover:text-red-800"
