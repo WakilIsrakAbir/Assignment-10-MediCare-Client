@@ -163,6 +163,3 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-Q4EXYBMGZN
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
-
-## 📜 License
-This project is licensed under the ISC License. © 2026 MediCare Connect.
