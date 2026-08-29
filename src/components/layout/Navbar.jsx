@@ -123,6 +123,7 @@ export default function Navbar() {
                     <img
                       src={user?.Photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80'}
                       alt={user?.name || 'User'}
+                      referrerPolicy="no-referrer"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80';

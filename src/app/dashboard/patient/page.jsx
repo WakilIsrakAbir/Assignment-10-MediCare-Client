@@ -183,8 +183,13 @@ export default function PatientDashboardPage() {
           <div className="flex items-center gap-4">
             <img
               src={user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80'}
-              alt="Avatar"
-              className="w-14 h-14 rounded-2xl object-cover border-2 border-teal-500 shadow-xs"
+              alt={user?.name || 'Avatar'}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80';
+              }}
+              className="w-14 h-14 rounded-2xl object-cover border-2 border-teal-500 shadow-xs bg-slate-100"
             />
             <div>
               <div className="flex items-center gap-2">
@@ -587,7 +592,12 @@ export default function PatientDashboardPage() {
                 <img
                   src={user?.Photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80'}
                   alt="Profile"
-                  className="w-16 h-16 rounded-2xl object-cover border-2 border-teal-500"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80';
+                  }}
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-teal-500 bg-slate-100"
                 />
                 <div>
                   <h4 className="font-bold text-slate-900">{user?.name}</h4>

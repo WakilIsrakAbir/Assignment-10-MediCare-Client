@@ -239,6 +239,7 @@ export default function DoctorDashboardPage() {
             <img
               src={doctorSchedule?.profileImage || user?.Photo || 'https://images.unsplash.com/photo-1594824813686-2a91a92e10fb?auto=format&fit=crop&w=160&q=80'}
               alt="Avatar"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = 'https://images.unsplash.com/photo-1594824813686-2a91a92e10fb?auto=format&fit=crop&w=160&q=80';

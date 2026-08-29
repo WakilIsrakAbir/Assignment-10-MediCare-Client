@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from '../services/api';
 import { authClient, signIn as betterSignIn, signUp as betterSignUp, signOut as betterSignOut } from '../lib/auth-client';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../lib/firebase';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
@@ -50,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     initAndSyncSession();
   }, []);
 
-  // Register with Better Auth
+  // Register with Better Auth / API
   const registerUser = async (formData) => {
     try {
       setLoading(true);
@@ -72,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login with Better Auth
+  // Login with Better Auth / API
   const loginUser = async (email, password) => {
     try {
       setLoading(true);
@@ -94,25 +96,43 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google OAuth Login via Better Auth / Google Cloud
+  // Google OAuth Login via Firebase Authentication & Backend Sync
   const loginWithGoogle = async () => {
     try {
       setLoading(true);
-      if (authClient && authClient.signIn && authClient.signIn.social) {
-        await authClient.signIn.social({
-          provider: 'google',
-          callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard',
-        });
-        return { success: true };
+      // 1. Popup with Firebase Google Auth
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+
+      // 2. Send Google profile to backend to create/fetch user and get JWT
+      const res = await API.post('/auth/google', {
+        name: firebaseUser.displayName || 'Google User',
+        email: firebaseUser.email,
+        photo: firebaseUser.photoURL || '',
+      });
+
+      if (res.data.success) {
+        setUser(res.data.user);
+        setToken(res.data.token);
+        localStorage.setItem('medicare_token', res.data.token);
+        localStorage.setItem('medicare_user', JSON.stringify(res.data.user));
+        toast.success(res.data.message || `Welcome, ${res.data.user.name}!`);
+        return { success: true, user: res.data.user };
       } else {
-        toast.error('Google OAuth client configuration in progress.');
-        return { success: false };
+        toast.error(res.data.message || 'Google sign-in failed on server.');
+        return { success: false, message: res.data.message };
       }
     } catch (error) {
-      console.error('Google OAuth Sign In Error:', error);
-      const msg = error.message || 'Google sign-in could not be initiated.';
-      toast.error(msg);
-      return { success: false, message: msg };
+      console.error('Google Sign In Error:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        toast.error('Google sign-in popup was closed before completing.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        toast.error('This domain is not authorized in Firebase Console.');
+      } else {
+        const msg = error.response?.data?.message || error.message || 'Google sign-in failed.';
+        toast.error(msg);
+      }
+      return { success: false, message: error.message };
     } finally {
       setLoading(false);
     }

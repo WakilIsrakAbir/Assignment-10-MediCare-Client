@@ -104,6 +104,7 @@ export default function ProfilePage() {
               <img
                 src={profile.Photo || defaultAvatar}
                 alt={profile.name}
+                referrerPolicy="no-referrer"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = defaultAvatar;
