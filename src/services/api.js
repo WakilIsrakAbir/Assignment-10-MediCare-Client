@@ -13,6 +13,7 @@ const getBaseURL = () => {
 const API = axios.create({
   baseURL: getBaseURL(),
   withCredentials: true,
+  timeout: 30000, // 30s timeout to handle server cold starts
 });
 
 API.interceptors.request.use((config) => {
