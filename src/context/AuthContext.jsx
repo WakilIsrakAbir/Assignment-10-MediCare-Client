@@ -142,19 +142,23 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = async () => {
     try {
       await API.post('/auth/logout');
-      try {
-        await betterSignOut();
-      } catch (e) {
-        // ignore if better auth session was not set
-      }
-      setUser(null);
-      setToken(null);
+    } catch (error) {
+      console.warn('Backend logout warning:', error?.message);
+    }
+
+    try {
+      await betterSignOut();
+    } catch (e) {
+      // ignore if better auth session was not set
+    }
+
+    setUser(null);
+    setToken(null);
+    if (typeof window !== 'undefined') {
       localStorage.removeItem('medicare_token');
       localStorage.removeItem('medicare_user');
-      toast.success('Logged out successfully');
-    } catch (error) {
-      console.error('Logout error:', error);
     }
+    toast.success('Logged out successfully');
   };
 
   return (
